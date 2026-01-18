@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "574943856710",
+    "project_id": "ghostme-34590",
+    "storage_bucket": "ghostme-34590.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574943856710:android:92571066a164ae62f2e247",
+        "android_client_info": {
+          "package_name": "com.brycewayne.ghost_me_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574943856710-3atvjhe9o1hl98uut4got6j7st1ousea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7V7ByCzFKoNDaOy8vyYW43YOe7qMxgn8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574943856710-3atvjhe9o1hl98uut4got6j7st1ousea.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "574943856710-2fd24etalsadgrvqeorrbp4f3dhu6ke1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ghostme"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574943856710:android:cd47979232ee759ff2e247",
+        "android_client_info": {
+          "package_name": "com.example.ghostme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574943856710-3atvjhe9o1hl98uut4got6j7st1ousea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7V7ByCzFKoNDaOy8vyYW43YOe7qMxgn8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574943856710-3atvjhe9o1hl98uut4got6j7st1ousea.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "574943856710-2fd24etalsadgrvqeorrbp4f3dhu6ke1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ghostme"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
