@@ -1,7 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.brycewayne.ghost_me_mobile">
     <application
-        android:label="ghost_me_mobile"
-        android:name="${applicationName}"
+        android:label="GhostMe"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
