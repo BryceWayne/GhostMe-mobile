@@ -4,7 +4,7 @@ import '../../logic/blocs/auth/auth_bloc.dart';
 import '../../logic/blocs/auth/auth_event.dart';
 import '../../logic/blocs/auth/auth_state.dart';
 import '../../core/theme/ghost_theme.dart';
-// [THE IMPORT FIX] This allows us to navigate to the ChatScreen
+// The "Import Fix": This line tells Flutter where to find the ChatScreen class
 import 'chat_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -23,7 +23,6 @@ class LoginScreen extends StatelessWidget {
           );
         }
         
-        // --- NAVIGATION LOGIC ---
         if (state is AuthAuthenticated) {
            ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -33,8 +32,7 @@ class LoginScreen extends StatelessWidget {
             ),
           );
 
-          // This command swaps the current screen (Login) for the new one (Chat)
-          // "pushReplacement" means the user cannot hit "Back" to return to login.
+          // Pushes the ChatScreen onto the view and removes the LoginScreen
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const ChatScreen()),
           );
@@ -57,8 +55,6 @@ class LoginScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(flex: 2),
-                
-                // --- TITLE ---
                 Text(
                   "GHOST_ME",
                   style: Theme.of(context).textTheme.displayLarge,
@@ -69,19 +65,13 @@ class LoginScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                
                 const Spacer(flex: 1),
-                
-                // --- THE ICON ---
                 Icon(
                   Icons.fingerprint, 
                   size: 80, 
                   color: GhostTheme.ectoGreen.withOpacity(0.5)
                 ),
-
                 const Spacer(flex: 1),
-
-                // --- LOGIN BUTTON ---
                 SizedBox(
                   width: double.infinity,
                   height: 60,
@@ -92,13 +82,11 @@ class LoginScreen extends StatelessWidget {
                     child: const Text("SUMMON IDENTITY"),
                   ),
                 ),
-                
                 const SizedBox(height: 20),
                 Text(
                   "v1.0.0 // PROTOCOL: WEBSOCKET",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                
                 const Spacer(flex: 1),
               ],
             ),

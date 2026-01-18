@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/foundation.dart'; // <--- NEW: Safe Platform Checking
+import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'core/theme/ghost_theme.dart';
 import 'data/repositories/auth_repository.dart';
 import 'logic/blocs/auth/auth_bloc.dart';
 import 'logic/blocs/auth/auth_event.dart';
+// --- ADD THESE IMPORTS ---
+import 'logic/blocs/chat/chat_bloc.dart';
 import 'presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // UNIVERSAL CHECK: 
-  // Initialize Firebase ONLY if we are NOT on Linux Desktop.
-  // (Web, Android, and iOS are fine).
   try {
     if (defaultTargetPlatform != TargetPlatform.linux) {
       await Firebase.initializeApp(
@@ -35,10 +34,19 @@ class GhostMeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepositoryProvider(
       create: (context) => AuthRepository(),
-      child: BlocProvider(
-        create: (context) => AuthBloc(
-          authRepository: context.read<AuthRepository>(),
-        )..add(AuthStarted()), // This is now safe to run everywhere
+      child: MultiBlocProvider(
+        providers: [
+          // This is the ONE true source of Auth state
+          BlocProvider(
+            create: (context) => AuthBloc(
+              authRepository: context.read<AuthRepository>(),
+            )..add(AuthStarted()),
+          ),
+          // This starts the WebSocket connection as soon as the app boots
+          BlocProvider(
+            create: (context) => ChatBloc()..add(ConnectToStream()),
+          ),
+        ],
         child: MaterialApp(
           title: 'GhostMe',
           debugShowCheckedModeBanner: false,
