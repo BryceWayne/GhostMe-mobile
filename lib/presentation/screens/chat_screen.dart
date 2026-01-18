@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../logic/blocs/auth/auth_bloc.dart';
-import '../../logic/blocs/auth/auth_event.dart';
 import '../../logic/blocs/chat/chat_bloc.dart';
+import '../../logic/blocs/chat/chat_state.dart';
+import '../../logic/blocs/chat/chat_event.dart';
 import '../../core/theme/ghost_theme.dart';
+import '../widgets/seance_header.dart'; 
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -14,139 +15,123 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
 
-  // Automatically scrolls the terminal to the bottom when a new message arrives
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+  void _sendMessage() {
+    if (_controller.text.trim().isNotEmpty) {
+      context.read<ChatBloc>().add(SendMessage(_controller.text.trim()));
+      _controller.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("TERMINAL_UPLINK"),
-        backgroundColor: Colors.black,
-        elevation: 0,
-        actions: [
-          // Connection Status Indicator
-          BlocBuilder<ChatBloc, ChatState>(
-            builder: (context, state) {
-              return Icon(
-                Icons.circle,
-                size: 12,
-                color: state.isConnected ? GhostTheme.ectoGreen : GhostTheme.glitchRed,
-              );
-            },
-          ),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(Icons.power_settings_new, color: GhostTheme.glitchRed),
-            onPressed: () {
-              context.read<AuthBloc>().add(AuthLogoutRequested());
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // --- THE VOID (Message Log) ---
-          Expanded(
-            child: BlocConsumer<ChatBloc, ChatState>(
-              listener: (context, state) {
-                // Scroll down whenever the "ghost" speaks or you send a message
-                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-              },
-              builder: (context, state) {
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: state.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = state.messages[index];
-                    final isGhost = message.startsWith("GHOST");
-                    final isSystem = message.startsWith("SYSTEM");
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(
-                        message,
-                        style: TextStyle(
-                          fontFamily: 'ShareTechMono', // Ensure this matches your theme
-                          fontSize: 16,
-                          color: isSystem 
-                              ? GhostTheme.hologramBlue.withOpacity(0.7)
-                              : isGhost 
-                                  ? GhostTheme.ectoGreen 
-                                  : Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-
-          // --- THE INPUT (Command Line) ---
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              border: Border(
-                top: BorderSide(color: GhostTheme.ectoGreen.withOpacity(0.2)),
-              ),
-            ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  const Text(">> ", style: TextStyle(color: GhostTheme.ectoGreen, fontSize: 18)),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      autofocus: true,
-                      style: const TextStyle(color: GhostTheme.ectoGreen, fontSize: 18),
-                      decoration: const InputDecoration(
-                        hintText: "TRANSMIT_TO_VOID...",
-                        hintStyle: TextStyle(color: Colors.white24),
-                        border: InputBorder.none,
-                      ),
-                      onSubmitted: (value) {
-                        if (value.isNotEmpty) {
-                          context.read<ChatBloc>().add(SendMessage(value));
-                          _controller.clear();
-                        }
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: GhostTheme.ectoGreen),
-                    onPressed: () {
-                      if (_controller.text.isNotEmpty) {
-                        context.read<ChatBloc>().add(SendMessage(_controller.text));
-                        _controller.clear();
-                      }
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SeanceHeader(), // Menu button is now inside here
+            Expanded(
+              child: BlocConsumer<ChatBloc, ChatState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(top: 10),
+                    itemCount: state.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = state.messages[index].text;
+                      return _buildMessageItem(message);
                     },
-                  ),
-                ],
+                  );
+                },
               ),
+            ),
+            _buildInputArea(context),
+          ],
+        ),
+      ),
+      // FLOATING ACTION BUTTON REMOVED
+    );
+  }
+
+  Widget _buildMessageItem(String message) {
+    Color textColor = GhostTheme.linkGreen;
+
+    bool isGhost = message.startsWith("GHOST:");
+    bool isSystem = message.startsWith("SYSTEM:");
+
+    if (isSystem) textColor = GhostTheme.seanceLavender.withOpacity(0.5);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: Text(
+        message,
+        style: TextStyle(
+          color: textColor,
+          fontFamily: isGhost ? 'CourierPrime' : 'ShareTechMono',
+          fontSize: isGhost ? 16 : 14,
+          shadows: isGhost
+              ? [Shadow(color: GhostTheme.linkGreen.withOpacity(0.5), blurRadius: 8)]
+              : [],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputArea(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(
+          top: BorderSide(color: GhostTheme.seanceLavender.withOpacity(0.2), width: 1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              style: const TextStyle(color: GhostTheme.seanceLavender),
+              cursorColor: GhostTheme.linkGreen,
+              decoration: InputDecoration(
+                hintText: "Incant your message...",
+                hintStyle: TextStyle(color: GhostTheme.seanceLavender.withOpacity(0.3)),
+                filled: true,
+                fillColor: Colors.black.withOpacity(0.3),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                  borderSide: BorderSide(color: GhostTheme.seanceLavender.withOpacity(0.3)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(4),
+                  borderSide: BorderSide(color: GhostTheme.seanceLavender.withOpacity(0.3)),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                  borderSide: BorderSide(color: GhostTheme.seanceLavender),
+                ),
+              ),
+              onSubmitted: (value) => _sendMessage(),
+            ),
+          ),
+          const SizedBox(width: 12),
+          IconButton(
+            onPressed: _sendMessage,
+            icon: const Icon(Icons.send_outlined),
+            color: GhostTheme.linkGreen,
+            style: IconButton.styleFrom(
+              backgroundColor: GhostTheme.linkGreen.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+                side: const BorderSide(color: GhostTheme.linkGreen, width: 1),
+              ),
+              padding: const EdgeInsets.all(12),
             ),
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 }

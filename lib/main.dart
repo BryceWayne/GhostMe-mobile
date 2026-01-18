@@ -3,25 +3,28 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
+
+// Ensure these paths match your actual folder structure
 import 'core/theme/ghost_theme.dart';
 import 'data/repositories/auth_repository.dart';
 import 'logic/blocs/auth/auth_bloc.dart';
 import 'logic/blocs/auth/auth_event.dart';
-// --- ADD THESE IMPORTS ---
 import 'logic/blocs/chat/chat_bloc.dart';
+import 'logic/blocs/chat/chat_event.dart'; // Added for ConnectToStream
 import 'presentation/screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
+    // Keeping your Linux-safety check for Firebase
     if (defaultTargetPlatform != TargetPlatform.linux) {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
     }
   } catch (e) {
-    print("Firebase Init Skipped: $e");
+    debugPrint("Firebase Init Skipped or Failed: $e");
   }
 
   runApp(const GhostMeApp());
@@ -36,13 +39,13 @@ class GhostMeApp extends StatelessWidget {
       create: (context) => AuthRepository(),
       child: MultiBlocProvider(
         providers: [
-          // This is the ONE true source of Auth state
+          // Auth State Management
           BlocProvider(
             create: (context) => AuthBloc(
               authRepository: context.read<AuthRepository>(),
             )..add(AuthStarted()),
           ),
-          // This starts the WebSocket connection as soon as the app boots
+          // WebSocket Management - initializing the séance link
           BlocProvider(
             create: (context) => ChatBloc()..add(ConnectToStream()),
           ),
@@ -50,8 +53,16 @@ class GhostMeApp extends StatelessWidget {
         child: MaterialApp(
           title: 'GhostMe',
           debugShowCheckedModeBanner: false,
+          
+          // Applying the Occult-Tech theme we defined in ghost_theme.dart
           theme: GhostTheme.themeData,
+          
+          // Using a builder is a best practice to ensure Theme.of(context) 
+          // works correctly in lower-level widgets if needed.
           home: const LoginScreen(),
+          
+          // Optional: Add a transition builder here later if you want 
+          // "glitch" transitions between screens.
         ),
       ),
     );
